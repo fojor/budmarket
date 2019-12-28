@@ -1,14 +1,14 @@
 <template>
-	<HelloWorld msg="Welcome to Your Vue.js" />
+	<v-btn x-large color="success" to="/offers/create">Сделать заказ</v-btn>
 </template>
 
 <script lang="ts">
 	import { Component, Prop, Vue } from "vue-property-decorator";
-	import HelloWorld from "@/components/HelloWorld.vue";
+	import HelloWorld from "@/components/hello-world.vue";
 
 	@Component({
 		components: {
-			HelloWorld
+			//HelloWorld
 		}
 	})
 	export default class Home extends Vue {
