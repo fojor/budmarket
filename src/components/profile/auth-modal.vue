@@ -8,26 +8,25 @@
 			</v-tabs>
 			<v-tabs-items v-model="tab">
 				<v-tab-item>
-					<v-card>
-						<v-card-text>
-							<v-form>
-								<v-text-field
-									label="Номер телефона"
-									name="login"
-									prepend-icon="mdi-cellphone-iphone"
-									type="text"
-								/>
-
-								<v-text-field
-									id="password"
-									label="Password"
-									name="password"
-									prepend-icon="lock"
-									type="password"
-								/>
-							</v-form>
-						</v-card-text>
-					</v-card>
+					<div class="mx-auto mt-10 mb-6" style="width:300px">
+						<v-form>
+							<v-text-field
+								label="Номер телефона"
+								v-model="phoneNumber"
+								name="phoneNumber"
+								prepend-icon="mdi-cellphone-iphone"
+								type="text"
+								prefix="+38"
+								v-mask="mask"
+							/>
+						</v-form>
+					</div>
+					<div class="d-flex justify-center">
+						<div id="recaptcha-container"></div>
+					</div>
+					<div class="d-flex justify-center mt-6 mb-8">
+						<v-btn color="primary" @click="sendCode" text>Send Code</v-btn>
+					</div>
 				</v-tab-item>
 				<v-tab-item>
 					<v-card>
@@ -35,11 +34,11 @@
 					</v-card>
 				</v-tab-item>
 			</v-tabs-items>
-			<!-- <v-divider></v-divider>
+			<v-divider></v-divider>
 
-					<v-card-actions>
-						<v-spacer></v-spacer>
-						<v-btn color="primary" text @click="loginModalVisible = false">I accept</v-btn>
+			<!-- <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="primary" text @click="sendCode">I accept</v-btn>
 			</v-card-actions>-->
 		</v-card>
 	</v-dialog>
@@ -48,17 +47,53 @@
 <script lang="ts">
 	import { Component, Vue } from "vue-property-decorator";
 	import { RootMutationsType } from "@/store/mutations";
+	import firebase from "firebase";
+	import { mask } from "vue-the-mask";
 
-	@Component({})
+	@Component({
+		directives: {
+			mask
+		}
+	})
 	export default class AuthModal extends Vue {
 		tab = null;
+		phoneNumber = "";
+		mask = "##########";
 
 		get loginModalVisible() {
-			return this.$store.state.loginModalVisible;
+			let value = this.$store.state.loginModalVisible;
+			const windowRef: any = window;
+
+			if (value && !windowRef.recaptchaVerifier) {
+				// windowRef.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+				// 	"recaptcha-container"
+				// );
+				// windowRef.recaptchaVerifier.render();
+				setTimeout(() => {
+					windowRef.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+						"recaptcha-container"
+					);
+					windowRef.recaptchaVerifier.render();
+				}, 100);
+			}
+
+			return value;
 		}
 
 		close() {
 			this.$store.commit(RootMutationsType.HIDE_LOGIN_DIALOG);
+		}
+
+		sendCode(verifier: any) {
+			const windowRef: any = window;
+
+			firebase
+				.auth()
+				.signInWithPhoneNumber(
+					"+38" + this.phoneNumber,
+					windowRef.recaptchaVerifier
+				)
+				.then(data => console.log(data));
 		}
 	}
 </script>
