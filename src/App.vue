@@ -16,8 +16,8 @@
 
 			<v-spacer></v-spacer>
 
-			<v-btn color="red lighten-2">
-				<span class="mr-2" @click="openAuthModal">Вход</span>
+			<v-btn color="red lighten-2" @click="openAuthModal">
+				<span class="mr-2">Вход</span>
 				<v-icon>mdi-open-in-new</v-icon>
 			</v-btn>
 			<AuthModal></AuthModal>
@@ -31,6 +31,7 @@
 
 <script lang="ts">
 	import { Vue, Component } from "vue-property-decorator";
+	import { RootMutationsType } from "@/store/mutations";
 	import AuthModal from "@/components/profile/auth-modal.vue";
 
 	@Component({
@@ -40,7 +41,7 @@
 	})
 	export default class App extends Vue {
 		openAuthModal() {
-			this.$store.commit("showModal");
+			this.$store.commit(RootMutationsType.SHOW_LOGIN_DIALOG);
 		}
 	}
 </script>

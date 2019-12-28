@@ -47,17 +47,18 @@
 
 <script lang="ts">
 	import { Component, Vue } from "vue-property-decorator";
+	import { RootMutationsType } from "@/store/mutations";
 
 	@Component({})
 	export default class AuthModal extends Vue {
 		tab = null;
 
 		get loginModalVisible() {
-			return this.$store.state.modalVisible;
+			return this.$store.state.loginModalVisible;
 		}
 
 		close() {
-			this.$store.commit("hideModal");
+			this.$store.commit(RootMutationsType.HIDE_LOGIN_DIALOG);
 		}
 	}
 </script>
