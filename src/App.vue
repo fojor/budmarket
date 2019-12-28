@@ -16,6 +16,10 @@
 
 			<v-spacer></v-spacer>
 
+			<v-btn color="red lighten-2">
+				<span class="mr-2" @click="openAuthModal">Вход</span>
+				<v-icon>mdi-open-in-new</v-icon>
+			</v-btn>
 			<AuthModal></AuthModal>
 		</v-app-bar>
 
@@ -34,5 +38,9 @@
 			AuthModal
 		}
 	})
-	export default class App extends Vue {}
+	export default class App extends Vue {
+		openAuthModal() {
+			this.$store.commit("showModal");
+		}
+	}
 </script>

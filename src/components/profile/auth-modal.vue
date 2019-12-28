@@ -1,20 +1,11 @@
 <template>
-	<v-dialog v-model="loginModalVisible" width="500">
-		<template v-slot:activator="{ on }">
-			<v-btn color="red lighten-2" v-on="on">
-				<span class="mr-2">Вход</span>
-				<v-icon>mdi-open-in-new</v-icon>
-			</v-btn>
-		</template>
-
+	<v-dialog v-model="loginModalVisible" @click:outside="close" width="500">
 		<v-card>
 			<!-- <v-card-title class="headline grey lighten-2" primary-title>Privacy Policy</v-card-title> -->
-
 			<v-tabs centered grow v-model="tab">
 				<v-tab>Вход</v-tab>
 				<v-tab>Регистрация</v-tab>
 			</v-tabs>
-
 			<v-tabs-items v-model="tab">
 				<v-tab-item>
 					<v-card>
@@ -44,7 +35,6 @@
 					</v-card>
 				</v-tab-item>
 			</v-tabs-items>
-
 			<!-- <v-divider></v-divider>
 
 					<v-card-actions>
@@ -60,7 +50,14 @@
 
 	@Component({})
 	export default class AuthModal extends Vue {
-		loginModalVisible = false;
 		tab = null;
+
+		get loginModalVisible() {
+			return this.$store.state.modalVisible;
+		}
+
+		close() {
+			this.$store.commit("hideModal");
+		}
 	}
 </script>
