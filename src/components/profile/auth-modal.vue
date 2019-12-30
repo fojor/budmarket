@@ -21,8 +21,9 @@
 							/>
 						</v-form>
 					</div>
-					<div class="d-flex justify-center">
+					<div class="d-flex justify-center recaptcha-block">
 						<div id="recaptcha-container"></div>
+						<div class="recaptcha-skeleton"></div>
 					</div>
 					<div class="d-flex justify-center mt-6 mb-8">
 						<v-btn color="primary" @click="sendCode" text>Send Code</v-btn>
@@ -43,6 +44,25 @@
 		</v-card>
 	</v-dialog>
 </template>
+
+<style lang="scss" scoped>
+	.recaptcha-block {
+		position: relative;
+		#recaptcha-container {
+			width: 304px;
+			height: 78px;
+			position: relative;
+			z-index: 1;
+		}
+		.recaptcha-skeleton {
+			width: 304px;
+			height: 78px;
+			position: absolute;
+			top: 0;
+			background: rgba(0, 0, 0, 0.12);
+		}
+	}
+</style>
 
 <script lang="ts">
 	import { Component, Vue } from "vue-property-decorator";
