@@ -1,33 +1,58 @@
 <template>
 	<v-dialog v-model="loginModalVisible" @click:outside="close" width="500">
 		<v-card>
-			<!-- <v-card-title class="headline grey lighten-2" primary-title>Privacy Policy</v-card-title> -->
-			<v-tabs centered grow v-model="tab">
-				<v-tab>Вход</v-tab>
-				<v-tab>Регистрация</v-tab>
-			</v-tabs>
-			<v-tabs-items v-model="tab">
-				<v-tab-item>
-					<div class="mx-auto mt-10 mb-6" style="width:300px">
-						<v-form>
-							<v-text-field
-								label="Номер телефона"
-								v-model="phoneNumber"
-								name="phoneNumber"
-								prepend-icon="mdi-cellphone-iphone"
-								type="text"
-								prefix="+38"
-								v-mask="mask"
-							/>
-						</v-form>
-					</div>
+			<v-card-title class="headline grey lighten-2" primary-title>Вход</v-card-title>
+			<v-card-text>
+				<div class="mx-auto mt-10 mb-6 phone-block">
+					<v-form>
+						<v-text-field
+							label="Номер телефона"
+							v-model="phoneNumber"
+							name="phoneNumber"
+							prepend-icon="mdi-cellphone-iphone"
+							type="text"
+							prefix="+38"
+							v-mask="phoneMask"
+						/>
+					</v-form>
+				</div>
+				<div v-if="showCaptcha">
 					<div class="d-flex justify-center recaptcha-block">
 						<div id="recaptcha-container"></div>
 						<div class="recaptcha-skeleton"></div>
 					</div>
 					<div class="d-flex justify-center mt-6 mb-8">
-						<v-btn color="primary" @click="sendCode" text>Send Code</v-btn>
+						<v-progress-circular v-if="isLoaging" indeterminate color="primary"></v-progress-circular>
+						<v-btn v-else color="primary" @click="sendCode" text>Войти</v-btn>
 					</div>
+				</div>
+				<div v-else>
+					<div class="d-flex justify-center">
+						<v-form>
+							<v-text-field
+								label="Код из SMS"
+								v-model="pinCode"
+								name="pinCode"
+								type="text"
+								v-mask="pinMask"
+								:error-messages="pinCodeError"
+								@input="pinCodeError = ''"
+							/>
+						</v-form>
+					</div>
+					<div class="d-flex justify-center mt-6 mb-8">
+						<v-progress-circular v-if="isLoaging" indeterminate color="primary"></v-progress-circular>
+						<v-btn v-else color="primary" @click="verifyCode" text>Войти</v-btn>
+					</div>
+				</div>
+			</v-card-text>
+			<!-- <v-tabs centered grow v-model="tab">
+				<v-tab>Вход</v-tab>
+				<v-tab>Регистрация</v-tab>
+			</v-tabs>
+			<v-tabs-items v-model="tab">
+				<v-tab-item>
+					
 				</v-tab-item>
 				<v-tab-item>
 					<v-card>
@@ -35,7 +60,7 @@
 					</v-card>
 				</v-tab-item>
 			</v-tabs-items>
-			<v-divider></v-divider>
+			<v-divider></v-divider>-->
 
 			<!-- <v-card-actions>
                 <v-spacer></v-spacer>
@@ -46,6 +71,9 @@
 </template>
 
 <style lang="scss" scoped>
+	.phone-block {
+		width: 300px;
+	}
 	.recaptcha-block {
 		position: relative;
 		#recaptcha-container {
@@ -67,7 +95,8 @@
 <script lang="ts">
 	import { Component, Vue } from "vue-property-decorator";
 	import { RootMutationsType } from "@/store/mutations";
-	import firebase from "firebase";
+	import * as firebase from "firebase/app";
+	import "firebase/auth";
 	import { mask } from "vue-the-mask";
 
 	@Component({
@@ -76,24 +105,29 @@
 		}
 	})
 	export default class AuthModal extends Vue {
+		windowRef: any = window;
 		tab = null;
 		phoneNumber = "";
-		mask = "##########";
+		phoneMask = "##########";
+		pinCode = "";
+		pinCodeError = "";
+		pinMask = "######";
+		showCaptcha = true;
+		isLoaging = false;
 
 		get loginModalVisible() {
 			let value = this.$store.state.loginModalVisible;
-			const windowRef: any = window;
 
-			if (value && !windowRef.recaptchaVerifier) {
+			if (value && !this.windowRef.recaptchaVerifier) {
 				// windowRef.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
 				// 	"recaptcha-container"
 				// );
 				// windowRef.recaptchaVerifier.render();
 				setTimeout(() => {
-					windowRef.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+					this.windowRef.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
 						"recaptcha-container"
 					);
-					windowRef.recaptchaVerifier.render();
+					this.windowRef.recaptchaVerifier.render();
 				}, 100);
 			}
 
@@ -105,15 +139,38 @@
 		}
 
 		sendCode(verifier: any) {
-			const windowRef: any = window;
-
+			this.isLoaging = true;
 			firebase
 				.auth()
 				.signInWithPhoneNumber(
 					"+38" + this.phoneNumber,
-					windowRef.recaptchaVerifier
+					this.windowRef.recaptchaVerifier
 				)
-				.then(data => console.log(data));
+				.then(result => {
+					this.windowRef.confirmationResult = result;
+					this.showCaptcha = false;
+				})
+				.finally(() => (this.isLoaging = false));
+		}
+
+		verifyCode() {
+			this.isLoaging = true;
+			this.windowRef.confirmationResult
+				.confirm(this.pinCode)
+				.then((result: any) => {
+					// if(result.user) {
+					//    this.success.emit();
+					// };
+					this.close();
+				})
+				.catch((error: any) => {
+					switch (error.code) {
+						case "auth/invalid-verification-code":
+							this.pinCodeError = "Неверный код";
+							break;
+					}
+				})
+				.finally(() => (this.isLoaging = false));
 		}
 	}
 </script>
