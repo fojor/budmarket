@@ -4,20 +4,23 @@ import Home from '../views/home.vue'
 
 Vue.use(VueRouter)
 
-const routes = [
+export enum Routes {
+    Home = '/',
+    OffersCreate = '/offers/create',
+    Profile = '/profile'
+}
+
+const routesConfig = [
     {
-        path: '/',
-        name: 'home',
+        path: Routes.Home,
         component: Home
     },
     {
-        path: '/offers/create',
-        name: 'offers-create',
+        path: Routes.OffersCreate,
         component: () => import('../views/offers/create.vue')
     },
     {
-        path: '/profile',
-        name: 'profile',
+        path: Routes.Profile,
         component: () => import('../views/profile.vue')
     }
 ]
@@ -25,7 +28,7 @@ const routes = [
 const router = new VueRouter({
     mode: 'history',
     base: process.env.BASE_URL,
-    routes
+    routes: routesConfig
 })
 
 export default router

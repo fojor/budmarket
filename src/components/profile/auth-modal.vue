@@ -94,10 +94,12 @@
 
 <script lang="ts">
 	import { Component, Vue } from "vue-property-decorator";
-	import { RootMutationsType } from "@/store/mutations";
 	import * as firebase from "firebase/app";
 	import "firebase/auth";
 	import { mask } from "vue-the-mask";
+	import { RootMutationsType } from "@/store/mutations";
+	import { Routes } from "@/router";
+	import NavigationService from "@/services/navigation.service";
 
 	@Component({
 		directives: {
@@ -162,7 +164,7 @@
 					//    this.success.emit();
 					// };
 					this.close();
-					this.$router.push({ path: "/profile" });
+					NavigationService.redirectTo(this.$router, Routes.Profile);
 				})
 				.catch((error: any) => {
 					switch (error.code) {
