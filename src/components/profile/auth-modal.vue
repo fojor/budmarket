@@ -162,6 +162,7 @@
 					//    this.success.emit();
 					// };
 					this.close();
+					this.$router.push({ path: "/profile" });
 				})
 				.catch((error: any) => {
 					switch (error.code) {

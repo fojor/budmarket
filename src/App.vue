@@ -18,7 +18,11 @@
 
 			<v-btn color="red lighten-2" @click="openAuthModal">
 				<span class="mr-2">Вход</span>
-				<v-icon>mdi-open-in-new</v-icon>
+				<v-icon>mdi-login</v-icon>
+			</v-btn>
+			<v-btn color="red lighten-2" to="/profile">
+				<span class="mr-2">Профиль</span>
+				<v-icon>mdi-account-circle</v-icon>
 			</v-btn>
 			<AuthModal></AuthModal>
 		</v-app-bar>
